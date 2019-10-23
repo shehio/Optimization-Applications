@@ -3,7 +3,7 @@ library(glpkAPI)
 
 rm(list=ls())
 
-solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2)
+solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2, onlySimplex = FALSE, fname3)
 {
   nrows = dim(mat)[1]
   ncols = dim(mat)[2]
@@ -42,6 +42,12 @@ solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fna
   solveSimplexGLPK(lp)
   print(getObjValGLPK(lp))
   
+    if (onlySimplex)
+    {
+      printRangesGLPK(lp, fname = fname3)
+      return()
+    }
+  
   # # value of variables in optimal solution
   # getColsPrimGLPK(lp)
   # # status of each variable in optimal solution 1 = basic variable
@@ -66,18 +72,25 @@ solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fna
   # getRowsDualGLPK(lp)
 }
 
-prepMIP = function(mat, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach)
+prepMIP = function(mat, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach, onlySimplex = FALSE)
 {
   nrows = dim(mat)[1]
   ncols = dim(mat)[2]
   
   if (isZach)
   {
+    fname3 = "Sensitivity-Analysis-Zach.txt"
     allocations = 5
   }
   else
   {
+    fname3 = "Sensitivity-Analysis-Yolanada.txt"
     allocations = 7
+  }
+  
+  if (onlySimplex)
+  {
+    allocations = allocations + 1
   }
   
   ## row upper and lower bounds
@@ -93,7 +106,8 @@ prepMIP = function(mat, pChar1Target, pChar3Target, sCharTarget, target, countTa
   
   # set the type of variables
   types = c(rep(GLP_CV, 55), rep(GLP_BV, 15));
-  solveMIP(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2)
+  
+  solveMIP(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2, onlySimplex, fname3)
 }
 
 eye5 = diag(1, 5)
@@ -138,57 +152,53 @@ target = c(0.3, 0.09, 0.07, 0.2, 0.08, 0.06, 0.03, 0.03, 0.02, 0.02, 0.01, 0.02,
 pChar1Target = 0.93
 pChar3Target = 0.07
 sCharTarget = c(0.511, 0.106, 0.07, 0.03, 0.00)
+
 countTarget = 6
 fname1 = "solution-1-M1-Zach.txt"
 fname2 = "solution-2-M1-Zach.txt"
-prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, TRUE)
+prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE)
 
-# Model 2:
-target = c(0.24, 0.09, 0.06, 0.11, 0.05, 0.05, 0.03, 0.03, 0.01, 0.01, 0.01, 0.03, 0.26, 0.0, 0.02)
-pChar1Target = 0.72
-pChar3Target = 0.07
-sCharTarget = c(0.4355, 0.095, 0.05, 0.04, 0.26)
-countTarget = 6
-fname1 = "solution-1-M2-Zach.txt"
-fname2 = "solution-2-M2-Zach.txt"
-prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, TRUE)
-
-# Model 3: Minimizes the penalty for Zach.
-target = c(0.16, 0.06, 0.04, 0.08, 0.04, 0.03, 0.02, 0.02, 0.01, 0.01, 0.02, 0.04, 0.35, 0.04, 0.08)
-pChar1Target = 0.53
-pChar3Target = 0.12
-sCharTarget = c(0.2885, 0.063, 0.04, 0.06, 0.04)
-countTarget = 6
-fname1 = "solution-1-M3-Zach.txt"
-fname2 = "solution-2-M3-Zach.txt"
-prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, TRUE)
-
-# Model 1:
-target = c(0.3, 0.09, 0.07, 0.2, 0.08, 0.06, 0.03, 0.03, 0.02, 0.02, 0.01, 0.02, 0.07, 0.0, 0.0)
-pChar1Target = 0.93
-pChar3Target = 0.07
-sCharTarget = c(0.511, 0.106, 0.07, 0.03, 0.00)
 countTarget = 8
 fname1 = "solution-1-M1-Yolanda.txt"
 fname2 = "solution-2-M1-Yolanda.txt"
-prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, FALSE)
+prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE)
 
 # Model 2:
 target = c(0.24, 0.09, 0.06, 0.11, 0.05, 0.05, 0.03, 0.03, 0.01, 0.01, 0.01, 0.03, 0.26, 0.0, 0.02)
 pChar1Target = 0.72
 pChar3Target = 0.07
 sCharTarget = c(0.4355, 0.095, 0.05, 0.04, 0.26)
+
+countTarget = 6
+fname1 = "solution-1-M2-Zach.txt"
+fname2 = "solution-2-M2-Zach.txt"
+prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE)
+
 countTarget = 8
 fname1 = "solution-1-M2-Yolanda.txt"
 fname2 = "solution-2-M2-Yolanda.txt"
-prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, FALSE)
+prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE)
 
-# Model 3: Also, minimizes the penalty for Yolanda.
+# Model 3: Minimizes the penalty for Zach and yolanda.
 target = c(0.16, 0.06, 0.04, 0.08, 0.04, 0.03, 0.02, 0.02, 0.01, 0.01, 0.02, 0.04, 0.35, 0.04, 0.08)
 pChar1Target = 0.53
 pChar3Target = 0.12
 sCharTarget = c(0.2885, 0.063, 0.04, 0.06, 0.04)
+
+countTarget = 6
+fname1 = "solution-1-M3-Zach.txt"
+fname2 = "solution-2-M3-Zach.txt"
+prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE)
+
+# Add the binary constraint
+already_invested_zach = rbind(already_invested_zach, c(rep(0, 1, 55), 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0))
+prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE, onlySimplex = TRUE)
+
 countTarget = 8
 fname1 = "solution-1-M3-Yolanda.txt"
 fname2 = "solution-2-M3-Yolanda.txt"
-prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, FALSE)
+prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE)
+
+# Add the binary constraint
+already_invested_yolanda = rbind(already_invested_yolanda, c(rep(0, 1, 55), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0))
+prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE, onlySimplex = TRUE)
