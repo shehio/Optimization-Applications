@@ -1,32 +1,25 @@
+rm(list=ls())
+
 library("dplyr")
 library(glpkAPI)
 
-rm(list=ls())
-
-solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2, onlySimplex = FALSE, fname3)
+solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2, onlySimplex = FALSE)
 {
   nrows = dim(mat)[1]
   ncols = dim(mat)[2]
   
-  ## initialize model
   lp = initProbGLPK()
-  
-  # maximize objective GLP_Max (minimize with GLP_MIN)
-  setObjDirGLPK(lp,GLP_MIN)
-  
-  # tell model how many rows and columns
+  setObjDirGLPK(lp, GLP_MIN)
   addRowsGLPK(lp, nrows)
   addColsGLPK(lp, ncols)
   
-  # add bounds
+  # add bounds, objective, and kinds
   setColsBndsGLPK(lp, c(1:ncols), clower, cupper)
   setRowsBndsGLPK(lp, c(1:nrows), rlower, rupper)
-  
   setObjCoefsGLPK(lp, c(1:ncols), obj)
-  
   setColsKindGLPK(lp, 1:ncols, types)
   
-  ## use sparse format for model data
+  # use sparse format for model data
   rownames(mat) = c(1:dim(mat)[1])
   colnames(mat) = c(1:dim(mat)[2])
   sparseMatrix = as.data.frame(as.table(mat))
@@ -44,14 +37,15 @@ solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fna
   
     if (onlySimplex)
     {
-      printRangesGLPK(lp, fname = fname3)
+      printRangesGLPK(lp, fname = fname2)
+      
+      print("Rows Dual: ================")
+      print(getRowsDualGLPK(lp))
+      
+      print("Cols Dual: ================")
+      print(getColsDualGLPK(lp))
       return()
     }
-  
-  # # value of variables in optimal solution
-  # getColsPrimGLPK(lp)
-  # # status of each variable in optimal solution 1 = basic variable
-  # getColsStatGLPK(lp)
   
   # solve it again as a mixed integer program
   solveMIPGLPK(lp)
@@ -66,10 +60,6 @@ solveMIP = function(mat, rlower, rupper, clower, cupper, obj, types, fname1, fna
   
   # print the solution
   printSolGLPK(lp, fname1)
-  writeMIPGLPK(lp, fname2)
-  
-  # This is supposed to get all at once
-  # getRowsDualGLPK(lp)
 }
 
 prepMIP = function(mat, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach, onlySimplex = FALSE)
@@ -79,12 +69,10 @@ prepMIP = function(mat, pChar1Target, pChar3Target, sCharTarget, target, countTa
   
   if (isZach)
   {
-    fname3 = "Sensitivity-Analysis-Zach.txt"
     allocations = 5
   }
   else
   {
-    fname3 = "Sensitivity-Analysis-Yolanada.txt"
     allocations = 7
   }
   
@@ -105,9 +93,16 @@ prepMIP = function(mat, pChar1Target, pChar3Target, sCharTarget, target, countTa
   obj = c(rep(0, 15), rep(3, 10), rep(2, 30), rep(0, 15))
   
   # set the type of variables
-  types = c(rep(GLP_CV, 55), rep(GLP_BV, 15));
-  
-  solveMIP(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2, onlySimplex, fname3)
+  if (onlySimplex)
+  {
+    types = c(rep(GLP_CV, 70))
+  }
+  else
+  {
+    types = c(rep(GLP_CV, 55), rep(GLP_BV, 15))
+  }
+
+  solveMIP(mat, rlower, rupper, clower, cupper, obj, types, fname1, fname2, onlySimplex)
 }
 
 eye5 = diag(1, 5)
@@ -147,7 +142,7 @@ already_invested_yolanda = rbind(c(rep(0, 1, 55), 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 
 mat_zach = rbind(pChars, sChars, equalities, binaries, count, already_invested_zach) # 3 + 5 + 15  + 15 + 1 + 5
 mat_yolanda = rbind(pChars, sChars, equalities, binaries, count, already_invested_yolanda) # 3 + 5 + 15  + 15 + 1 + 5
 
-# Model 1:
+## Model 1:
 target = c(0.3, 0.09, 0.07, 0.2, 0.08, 0.06, 0.03, 0.03, 0.02, 0.02, 0.01, 0.02, 0.07, 0.0, 0.0)
 pChar1Target = 0.93
 pChar3Target = 0.07
@@ -155,15 +150,15 @@ sCharTarget = c(0.511, 0.106, 0.07, 0.03, 0.00)
 
 countTarget = 6
 fname1 = "solution-1-M1-Zach.txt"
-fname2 = "solution-2-M1-Zach.txt"
+fname2 = "Sensitivity-Analysis-Zach.txt"
 prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE)
 
 countTarget = 8
 fname1 = "solution-1-M1-Yolanda.txt"
-fname2 = "solution-2-M1-Yolanda.txt"
+fname2 = "Sensitivity-Analysis-Yolanada.txt"
 prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE)
 
-# Model 2:
+## Model 2:
 target = c(0.24, 0.09, 0.06, 0.11, 0.05, 0.05, 0.03, 0.03, 0.01, 0.01, 0.01, 0.03, 0.26, 0.0, 0.02)
 pChar1Target = 0.72
 pChar3Target = 0.07
@@ -171,15 +166,15 @@ sCharTarget = c(0.4355, 0.095, 0.05, 0.04, 0.26)
 
 countTarget = 6
 fname1 = "solution-1-M2-Zach.txt"
-fname2 = "solution-2-M2-Zach.txt"
+fname2 = "Sensitivity-Analysis-Zach.txt"
 prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE)
 
 countTarget = 8
 fname1 = "solution-1-M2-Yolanda.txt"
-fname2 = "solution-2-M2-Yolanda.txt"
+fname2 = "Sensitivity-Analysis-Yolanada.txt"
 prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE)
 
-# Model 3: Minimizes the penalty for Zach and yolanda.
+## Model 3: Minimizes the penalty for Zach and yolanda.
 target = c(0.16, 0.06, 0.04, 0.08, 0.04, 0.03, 0.02, 0.02, 0.01, 0.01, 0.02, 0.04, 0.35, 0.04, 0.08)
 pChar1Target = 0.53
 pChar3Target = 0.12
@@ -187,16 +182,17 @@ sCharTarget = c(0.2885, 0.063, 0.04, 0.06, 0.04)
 
 countTarget = 6
 fname1 = "solution-1-M3-Zach.txt"
-fname2 = "solution-2-M3-Zach.txt"
+fname2 = "Sensitivity-Analysis-Zach.txt"
 prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE)
 
 # Add the binary constraint
 already_invested_zach = rbind(already_invested_zach, c(rep(0, 1, 55), 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0))
+mat_zach = rbind(pChars, sChars, equalities, binaries, count, already_invested_zach)
 prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = TRUE, onlySimplex = TRUE)
 
 countTarget = 8
 fname1 = "solution-1-M3-Yolanda.txt"
-fname2 = "solution-2-M3-Yolanda.txt"
+fname2 = "Sensitivity-Analysis-Yolanada.txt"
 prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE)
 
 # Add the binary constraint
