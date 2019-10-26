@@ -197,4 +197,5 @@ prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarge
 
 # Add the binary constraint
 already_invested_yolanda = rbind(already_invested_yolanda, c(rep(0, 1, 55), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0))
-prepMIP(mat_zach, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE, onlySimplex = TRUE)
+mat_yolanda = rbind(pChars, sChars, equalities, binaries, count, already_invested_yolanda)
+prepMIP(mat_yolanda, pChar1Target, pChar3Target, sCharTarget, target, countTarget, fname1, fname2, isZach = FALSE, onlySimplex = TRUE)
