@@ -1,1 +1,1 @@
-# financeOptimization
+# Optimization for Computation Finance
