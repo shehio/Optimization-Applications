@@ -18,7 +18,7 @@ reset;
 # W6			7	6	4	5	3	7	2	 9	 7	 5					40
 
 #Load the model
-model Problem3.mod;
+model warehouse_planning.mod;
 
 #Change the solver
 option solver cplex;
