@@ -1,0 +1,16 @@
+set rows = r1 r2 r3;
+set cols = c1 c2 c3;
+
+# 						Player 1
+#						Rock  	Paper  	Scissors  
+#			Rock		  0		  -1		1
+#player2 	Paper2		  1		   0		-1
+#			Scissors  	  -1	   1		0
+
+param payoff :  c1 c2 c3 :=
+
+   r1         0  -1  1
+
+   r2         1  0	 -1
+
+   r3         -1  1  0;

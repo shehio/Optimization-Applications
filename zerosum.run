@@ -1,0 +1,20 @@
+# Reset the AMPL Enviroment
+reset;
+
+# Load the model
+model zerosum.mod;
+data zerosum.dat;
+
+# Change the solver
+option solver cplex;
+
+# Solve
+solve;
+
+# Show results
+display  y;
+display rowlimit;
+display value;
+
+
+# References: https://vanderbei.princeton.edu/542/lectures/lec8.pdf
