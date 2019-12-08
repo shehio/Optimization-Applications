@@ -2,7 +2,7 @@
 {
     // You are a private equity fund manager screening investment opportunities. 
     // Over the next 3 years you anticipate finding one opportunity per month and seek to build a portfolio of between 14 and 16 investments with the highest expected return. 
-    // As you screen the op- portunities, you estimate an anticipated return level.
+    // As you screen the opportunities, you estimate an anticipated return level.
     // Of course, there is no telling whether the opportunities will actually provide the anticipated return, but you do your best to evaluate them nonetheless. 
     // The anticipated return levels and the probabilities that each month’s project will be assessed at that level are shown in the table below.
     // 
@@ -18,7 +18,7 @@
     // There is a penalty for failing to invest in at least 14 projects. The penalty is a 4% decrement to your average return for each project less than 14. For example, if you only end up with 12 projects, you incur a penalty of 0.08 (i.e. 8%). Your objective is to maximize your expected return minus any penalties.
 
     // (a) What are the stages, states and available decisions for this problem?
-    // (b) Please specify the recursive relationship that allows the Dynamic Program- ming solution method proceed from stage to stage.
+    // (b) Please specify the recursive relationship that allows the Dynamic Programming solution method proceed from stage to stage.
     // (c) Will you use forward or backward recursion?
     // (d) You are in month 36 committed to 15 investments. You anticipate that this
     // 36th project will have a 20% return. Do you choose to invest in it?
@@ -51,11 +51,11 @@
 
             // Payoffs: Notice that we replaced <10 by 0 since we can't
             // invest in it anyway. This can be translated to how skillful
-            // next secretary is going to be.
+            // next secretary is going to be in our analogy.
             var payoffs = new[] { 0.2, 0.15, 0.1, 0 };
 
             // Setting up the final stage. This is the penalty in case that
-            // we fail to invest in at least minimumNumberOfProjects.
+            // we fail to invest in at least MinimumNumberOfProjects.
             // Also can be translated to failing to hiring x number of
             // secretaries. The way I perceive this problem is that it's
             // the secretary problem repeated many times.
@@ -64,6 +64,7 @@
                 ModifyDPMap(dp, Stages, i, -1, -1, -(MinimumNumberOfProjects - i) * 0.04);
             }
 
+            // If we incur no penalty, then we set it to zero.
             for (var i = MinimumNumberOfProjects; i <= MaximumNumberOfProjects; i++)
             {
                 ModifyDPMap(dp, Stages, i, -1, -1, 0);
@@ -191,7 +192,7 @@
                     var futurePayoff1 = SetState(dp, stage + 1, state + 1, probabilities, payoffs, newPayoffSoFar, -1);
                     var futurePayoff2 = SetState(dp, stage + 1, state, probabilities, payoffs, payoffSoFar, -1);
 
-                    if (futurePayoff1 > futurePayoff2)
+                    if (futurePayoff1 > ß)
                     {
                         Console.WriteLine("TAKE IT");
                     }
