@@ -110,6 +110,11 @@
             Console.ReadLine();
         }
 
+        /* This method answers the question: Should we take the stage project or no?
+        At any stage, we know: [stage, state, payoff so far, current payoff],
+        we're asked to make a decision which is going to maximize the future utility.
+        The utility in this case is described by the payoff of the whole portfolio.
+        */
         private static double SetState(
             IDictionary<int, Dictionary<int, Dictionary<double, Dictionary<double, double>>>> dp,
             int stage,
