@@ -1,6 +1,8 @@
 set rows = r1 r2 r3;
 set cols = c1 c2 c3;
 
+# Rock, paper, scissors payoff matrix.
+#
 # 						Player 1
 #						Rock  	Paper  	Scissors  
 #			Rock		  0		  -1		1

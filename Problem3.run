@@ -1,6 +1,22 @@
 #Reset the AMPL Enviroment
 reset;
 
+# A grocery chain must locate warehouses to service 10 stores. 
+# Warehouses can only be built in 6 possible sites. 
+# The company would like to determine the number of warehouses 
+# to construct and their locations in order to minimize the construction costs 
+# plus the five year cost to supply stores. Each store is supplied by a single warehouse. 
+# The annual cost to supply each store from each potential warehouse is shown in the table below.
+
+# Store 		S1	S2	S3	S4	S5	S6	S7	S8	S9	S10			construction cost
+# Warehouse 	
+# W1			2	1	8	5	7	1	4	 6	 5	 9					30
+# W2			4	9	4	3	9	4	4	 2	 7	 2					36
+# W3			5	8	7	6	7	9	3	 10	 4	 5					21
+# W4			3	5	7	9	7	6	6	 5	 4	 5					25
+# W5			8	7	3	6	8	5	7	 4	 8	 7					20
+# W6			7	6	4	5	3	7	2	 9	 7	 5					40
+
 #Load the model
 model Problem3.mod;
 
